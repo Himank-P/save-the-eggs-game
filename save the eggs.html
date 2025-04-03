@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Egg Rain</title>
+</head>
+
+<Style>
+
+    #background{
+        background-image: url("background.png");
+        background-size: cover;
+        width:530px;
+        height:748px;
+        left:50%;
+        top:50%;
+        position: absolute;
+        transform: translate(-50%, -50%);
+
+    }
+
+    #basket{
+        width:100px;
+        position:absolute;
+        transform: translateX(-50%);
+    }
+
+    #score{
+        position:relative;
+        font-size: 2em;
+        font-weight: bold;
+        left: 60px;
+        top:50px;
+        font-family: Arial, Helvetica, sans-serif;
+    }
+
+    #playtext{
+        font-size: 3em;
+        font-family: Arial, Helvetica, sans-serif;
+        font-weight: bold;
+        text-align: center;
+        position: relative;
+        top:40%;
+        
+        
+    }
+
+</Style>
+
+
+
+<body>
+    <div id="background">
+        <label id="score">00</label>
+        <img id="basket" src="nest.png">
+        <div id="playtext">Press Space to Play!</div>
+    </div>
+</body>
+
+<script>
+    const speed = 5
+    var score = 0
+    var background = document.getElementById('background')
+    var basket = document.getElementById('basket')
+    var xpos = (background.offsetWidth)/2
+    basket.style.left = xpos+'px'
+    basket.style.top = background.offsetHeight-75+'px'
+    var eggwidth = 15.5
+    var eggheight = 19.75
+    var eggslost = 0
+    var playtext = document.getElementById('playtext')
+    var id1
+    var id2
+    var id3
+    var id4
+    var id5
+
+
+
+    function eggspawner(){
+        let ycoordinate =  Math.floor(Math.random()*450+5)
+        let egg = document.createElement('img')
+        egg.src = "egg.png"
+        egg.style.left = ycoordinate+'px'
+        egg.width = 15.5
+        egg.style.position = 'absolute';
+        let parent= document.querySelector('#background')
+        parent.append(egg)
+    }
+
+
+    function egggravity(){
+        let list = document.querySelectorAll('img')
+        for (let i=0; i<list.length; i++){
+            let xcoordinate = list[i].style.top
+            xcoordinate = Number(xcoordinate.slice(0,-2))
+            if (list[i].id != 'basket'){
+            if (xcoordinate < 748-15){
+                list[i].style.top = Number(xcoordinate)+Number(speed)+'px'
+                
+            }
+            
+        }
+    }
+}
+
+
+    function eggleftscreen(){
+        let list = document.querySelectorAll('img')
+        let parent = document.querySelector('#background')
+        for (let i = 0; i< list.length; i++){
+            let xcoordinate = list[i].style.top
+            xcoordinate = Number(xcoordinate.slice(0,-2))
+            if (xcoordinate > 748-15){
+                parent.removeChild(list[i])
+                eggslost++
+                if (eggslost>3){
+                    playtext.textContent = 'Game Over!'
+                    playtext.style.display = 'block'
+                    clearInterval(id1)
+                    clearInterval(id2)
+                    clearInterval(id3)
+                    clearInterval(id4)
+                    clearInterval(id5)
+                    score = 0
+                    scorea = score.toString()
+                    scorea = scorea.padStart(2,"0")
+                    document.getElementById('score').textContent= scorea
+                    eggslost = 0
+                    }
+            }
+        }
+    }
+
+
+
+    function catchegg(){
+        
+        let list = document.querySelectorAll('img')
+        let parent = document.querySelector('#background')
+        for (let i = 0; i < list.length; i++){
+            if (list[i].id != "basket"){
+                let xcoordinate = list[i].style.left
+                xcoordinate = Number(xcoordinate.slice(0,-2))
+                let ycoordinate = list[i].style.top
+                ycoordinate = Number(ycoordinate.slice(0,-2))
+                let basketx = basket.style.left
+                basketx = Number(basketx.slice(0,-2))
+                let baskety = basket.style.top
+                baskety = Number(baskety.slice(0,-2))
+
+
+                if (xcoordinate>=basketx-40 && xcoordinate<=basketx+24.5 && ycoordinate+15>=baskety && ycoordinate+15<=baskety+10 ){
+                    score++
+                    scorea = score.toString()
+                    scorea = scorea.padStart(2,"0")
+                    document.getElementById('score').textContent= scorea
+                    parent.removeChild(list[i])
+                }
+            }
+        }
+    }
+
+
+
+    function lostornot(){
+        let parent = document.querySelector('#background')
+        let div1 = document.createElement('div')
+        let div2 = document.createElement('div')
+        let div3 = document.createElement('div')
+        let divs = [div1,div2,div3]
+        let x = 10
+        for( let i of divs){
+        i.style.width='25px';
+        i.style.height = '25px'
+        i.style.border = 'none'
+        i.style.position = 'absolute'
+        i.style.right = x+'px'
+        i.style.top = '15px'
+        x+=30
+        i.style.borderRadius = '20px'
+        i.style.background = '#16c93d'
+        parent.appendChild(i)
+    }
+        if (eggslost >= 1){
+            div3.style.background = '#fa0202'
+
+        }
+        if (eggslost >= 2){
+            div2.style.background = '#fa0202'
+
+        }
+        if (eggslost >=3){
+            div1.style.background = '#fa0202'
+
+        }
+
+    }
+    
+
+
+
+
+
+    addEventListener("mousemove", event =>{
+                                   if (event.target == document.getElementById('background')){
+                                       basket.style.left = event.offsetX+'px'
+                                   }
+                                })
+    
+
+    
+    window.onload = ()=>{
+        addEventListener("keypress", event=>
+        {if (event.key = 'Space')
+        {
+            playtext.style.display='none'
+            id1 = setInterval(eggspawner,2000)
+            id2 = setInterval(egggravity,50)  
+            id3 = setInterval(eggleftscreen,50)
+            id4 = setInterval(catchegg,50)}
+            id5 = setInterval(lostornot,50)
+        
+            
+        })
+    }
+addEventListener("keydown",event =>{
+    if(event.key =='Escape'){
+                clearInterval(id1)
+                clearInterval(id2)
+                clearInterval(id3)
+                clearInterval(id4)
+                clearInterval(id5)
+                playtext.style.display='block'
+                playtext.textContent = 'Press Space to Continue!'
+            }
+})
+    
+</script>
+</html>
